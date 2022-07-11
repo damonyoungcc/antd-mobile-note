@@ -1,4 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
+import { useUpdate } from 'ahooks';
+import React, { FC, useRef, useState } from 'react';
 
 type NativeInputProps = React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -10,33 +11,27 @@ type InputProps = Omit<NativeInputProps, 'onChange' | 'value'> & {
   onChange?: (val: string) => void;
 };
 
-/**
- * 非受控模式渲染一次 Parent start, Parent render, child start, child renders
- *
- * 受控模式：第一次加载：1、Parent start, Parent render, child start, child render 2、child trigger useEffect，值相同不会触发render
- *         更新值：1、Parent start, Parent render, child start, child render, child trigger useEffect, child start, child render, child trigger useEffect, child start, child render
- */
-
 const Input: FC<InputProps> = (props) => {
   console.log('child start');
   const isControlled = props.value !== undefined;
 
-  const [value, setValue] = useState(isControlled ? props.value : '');
-  useEffect(() => {
-    console.log('child trigger useEffect');
-    if (isControlled) {
-      setValue(props.value);
-    }
-  });
-  console.log('child render');
+  const stateRef = useRef(props.value);
+  if (isControlled) {
+    stateRef.current = props.value;
+  }
+
+  // const finalValue = isControlled ? props.value : stateRef.current;
+
+  const update = useUpdate();
+
+  console.log('child end');
   return (
     <input
       {...props}
-      value={value}
+      value={stateRef.current}
       onChange={(e) => {
-        if (!isControlled) {
-          setValue(e.target.value);
-        }
+        stateRef.current = e.target.value;
+        update();
         props.onChange?.(e.target.value);
       }}
     />

@@ -20,3 +20,11 @@ mobile: false
 ### 打印的顺序
 
 <code src="./demos/demo2.tsx" />
+
+### 一些优化
+
+<code src="./demos/demo3.tsx" />
+
+### 抽象与复用
+
+<code src="./demos/demo4.tsx" />
